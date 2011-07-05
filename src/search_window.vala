@@ -107,7 +107,19 @@ namespace Barabas.GtkFace
 		{
 			Gtk.TreeIter iter;
 			remote_files_list_store.append(out iter);
-			remote_files_list_store.set(iter, 0, info.name, 1, info, 2, info.remote_id, -1);
+			GLib.Icon icon = GLib.ContentType.get_icon(info.mimetype);
+			string icon_name = "text-x-generic";
+			if (icon is GLib.ThemedIcon)
+			{
+				GLib.ThemedIcon themed_icon = icon as GLib.ThemedIcon;
+				string[] names = themed_icon.get_names();
+				icon_name = names[names.length - 1];
+			}
+			remote_files_list_store.set(iter, 0, info.name, 
+			                                  1, info, 
+			                                  2, info.remote_id, 
+			                                  3, icon_name,
+			                                  -1);
 		}
 	}
 }

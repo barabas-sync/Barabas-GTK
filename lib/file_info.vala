@@ -21,5 +21,6 @@ public struct FileInfo
 {
 	int remote_id;
 	string name;
+	string mimetype;
 	string[] tags;
 }
