@@ -19,22 +19,13 @@
 
 namespace Barabas.DBus.Client
 {
-	public class Connection
+	[DBus (name = "be.ua.ac.cmi.comp.Barabas.File")]
+	public interface SyncedFile : Object
 	{
-		private class Connection () {}
-	
-		public static Barabas get_barabas() throws IOError
-		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ua.ac.cmi.comp.Barabas",
-			                          "/be/ua/ac/cmi/comp/Barabas");
-		}
+		public abstract string get_uri() throws IOError;
 		
-		public static SyncedFile get_file(string path) throws IOError
-		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ua.ac.cmi.comp.Barabas",
-			                          "/be/ua/ac/cmi/comp/Barabas/files/" + path);
-		}
+		public signal void sync_started(bool is_upload);
+		public signal void sync_progress(int64 current, int64 total);
+		public signal void sync_stopped(bool success);
 	}
 }

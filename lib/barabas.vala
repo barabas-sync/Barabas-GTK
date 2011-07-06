@@ -24,6 +24,8 @@ namespace Barabas.DBus.Client
 	{
 		public abstract string get_file_path(string uri) throws IOError;
 		public abstract string get_version_path(int version_id) throws IOError;
+		public abstract string get_file_path_for_remote(int remote_id) throws IOError;
+		public abstract string download_remote_to_uri(int remote_id, string uri) throws IOError;
 		
 		public abstract void search(string search) throws IOError;
 		public signal void search_completes(string search, int[] results);

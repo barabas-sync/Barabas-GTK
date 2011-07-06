@@ -6,10 +6,10 @@
       <!-- column-name name -->
       <column type="gchararray"/>
       <!-- column-name file_info -->
-      <column type="gpointer"/>
-      <!-- column-name ID -->
+      <column type="FileInfo"/>
+      <!-- column-name remote_id -->
       <column type="gint"/>
-      <!-- column-name mimetype-icon-name -->
+      <!-- column-name icon_name -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -59,6 +59,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="model">remoteFilesListStore</property>
+                <signal name="item-activated" handler="barabas_gtk_face_search_window_on_search_item_activated" swapped="no"/>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext1">
                     <property name="alignment">center</property>

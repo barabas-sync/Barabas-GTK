@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/vala)
 find_package(Vala REQUIRED)
 
 find_package(PkgConfig)
-pkg_check_modules(GTK REQUIRED gtk+-3.0 glib-2.0>=2.28 gio-2.0>=2.28 gmodule-2.0)
+pkg_check_modules(GTK REQUIRED gtk+-3.0 glib-2.0>=2.28 gio-2.0>=2.28 gmodule-2.0 gee-1.0)
 add_definitions(${GTK_CFLAGS} ${GTK_CFLAGS_OTHER} -g)
 link_libraries(${GTK_LIBRARIES})
 link_directories(${GTK_LIBRARY_DIRS})
@@ -20,6 +20,7 @@ vala_precompile(BARABAS_GTK_C
                          lib/dbus_connection.vala
                          lib/barabas.vala
                          lib/file_info.vala
-                PACKAGES gtk+-3.0 glib-2.0 gio-2.0 gmodule-2.0)
+                         lib/synced_file.vala
+                PACKAGES gtk+-3.0 glib-2.0 gio-2.0 gmodule-2.0 gee-1.0)
 
 add_executable("barabas-gtk" ${BARABAS_GTK_C})
