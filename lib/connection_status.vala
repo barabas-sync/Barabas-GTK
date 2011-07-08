@@ -19,22 +19,12 @@
 
 namespace Barabas.DBus.Client
 {
-	public class Connection
+	public enum ConnectionStatus
 	{
-		private class Connection () {}
-	
-		public static Barabas get_barabas() throws IOError
-		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ac.ua.comp.Barabas",
-			                          "/be/ac/ua/comp/Barabas");
-		}
-		
-		public static SyncedFile get_file(string path) throws IOError
-		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ua.ac.cmi.comp.Barabas",
-			                          "/be/ua/ac/cmi/comp/Barabas/files/" + path);
-		}
+		NOT_CONNECTED,
+		CONNECTING,
+		AUTHENTICATING,
+		CONNECTED,
+		DISCONNECTED
 	}
 }

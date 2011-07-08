@@ -19,9 +19,13 @@
 
 namespace Barabas.DBus.Client
 {
-	[DBus (name = "be.ua.ac.cmi.comp.Barabas")]
+	[DBus (name = "be.ac.ua.comp.Barabas")]
 	public interface Barabas : Object
 	{
+		public abstract void connect_server(string host, int16 port) throws IOError;
+		public abstract void connect_cancel() throws IOError;
+		public signal void status_changed(string host, ConnectionStatus status, string message);
+	
 		public abstract string get_file_path(string uri) throws IOError;
 		public abstract string get_version_path(int version_id) throws IOError;
 		public abstract string get_file_path_for_remote(int remote_id) throws IOError;

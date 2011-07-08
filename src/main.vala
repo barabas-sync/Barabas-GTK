@@ -29,12 +29,22 @@ namespace Barabas.GtkFace
 		}
 	
 		private SearchWindow search_window;
+		ConnectDialog connect_dialog;
 		private SystemTrayIcon tray_icon;
+		
+		private DBus.Client.Barabas barabas;
 	
 		public Main()
 		{
 			tray_icon = new SystemTrayIcon();
 			tray_icon.activate_search_window.connect(on_search_window);
+			
+			// TODO: make the path installable.
+			Gtk.Builder builder = new Gtk.Builder();
+			builder.add_from_file("../share/barabas-gtk.ui");
+			
+			connect_dialog = new ConnectDialog(builder);
+			GLib.Idle.add(() => { connect_dialog.run(); return false; });
 		}
 		
 		public void start()
@@ -53,6 +63,27 @@ namespace Barabas.GtkFace
 				search_window = new SearchWindow(builder);
 			}
 			search_window.toggle_show();
+		}
+		
+		private void on_server_status_changed(string hostname,
+		                                      DBus.Client.ConnectionStatus status)
+		{
+			if (status == DBus.Client.ConnectionStatus.CONNECTED)
+			{
+				stdout.printf("Connected to %s\n", hostname);
+			}
+			else if (status == DBus.Client.ConnectionStatus.CONNECTING)
+			{
+				stdout.printf("Connecting to %s\n", hostname);
+			}
+			else if (status == DBus.Client.ConnectionStatus.AUTHENTICATING)
+			{
+				stdout.printf("Authenticating to %s\n", hostname);
+			}
+			else if (status == DBus.Client.ConnectionStatus.DISCONNECTED)
+			{
+				stdout.printf("Disconnected from %s\n", hostname);
+			}
 		}
 	}
 }
