@@ -23,11 +23,17 @@ namespace Barabas.DBus.Client
 	{
 		private class Connection () {}
 	
+		private static Barabas barabas;
+	
 		public static Barabas get_barabas() throws IOError
 		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ac.ua.comp.Barabas",
-			                          "/be/ac/ua/comp/Barabas");
+			if (barabas == null)
+			{
+				barabas = Bus.get_proxy_sync(BusType.SESSION,
+			                                 "be.ac.ua.comp.Barabas",
+			                                 "/be/ac/ua/comp/Barabas");
+			}
+			return barabas;
 		}
 		
 		public static SyncedFile get_file(string path) throws IOError

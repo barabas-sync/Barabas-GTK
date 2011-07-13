@@ -22,9 +22,13 @@ namespace Barabas.DBus.Client
 	[DBus (name = "be.ac.ua.comp.Barabas")]
 	public interface Barabas : Object
 	{
+		public abstract void enable_authentication_method(string authentication_method) throws IOError;
 		public abstract void connect_server(string host, int16 port) throws IOError;
 		public abstract void connect_cancel() throws IOError;
+		public abstract void authenticate_user_password(UserPasswordAuthentication authentication) throws IOError;
+		public abstract void authenticate_cancel() throws IOError;
 		public signal void status_changed(string host, ConnectionStatus status, string message);
+		public signal void user_password_authentication_request();
 	
 		public abstract string get_file_path(string uri) throws IOError;
 		public abstract string get_version_path(int version_id) throws IOError;

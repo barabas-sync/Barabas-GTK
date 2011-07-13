@@ -19,14 +19,9 @@
 
 namespace Barabas.DBus.Client
 {
-	public enum ConnectionStatus
+	public struct UserPasswordAuthentication
 	{
-		NOT_CONNECTED,
-		CONNECTING,
-		AUTHENTICATION_REQUEST,
-		AUTHENTICATING,
-		AUTHENTICATION_FAILED,
-		CONNECTED,
-		DISCONNECTED,
+		string username;
+		string password;
 	}
 }

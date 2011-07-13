@@ -28,9 +28,11 @@ namespace Barabas.GtkFace
 			app.start();
 		}
 	
+	
 		private SearchWindow search_window;
-		ConnectDialog connect_dialog;
+		private ConnectDialog connect_dialog;
 		private SystemTrayIcon tray_icon;
+		private UserPasswordAuthenticationDialog authentication_dialog;
 		
 		private DBus.Client.Barabas barabas;
 	
@@ -42,6 +44,10 @@ namespace Barabas.GtkFace
 			// TODO: make the path installable.
 			Gtk.Builder builder = new Gtk.Builder();
 			builder.add_from_file("../share/barabas-gtk.ui");
+			
+			barabas = DBus.Client.Connection.get_barabas();
+			barabas.user_password_authentication_request.connect(on_user_password_authentication_request);
+			barabas.enable_authentication_method("user-password");
 			
 			connect_dialog = new ConnectDialog(builder);
 			GLib.Idle.add(() => { connect_dialog.run(); return false; });
@@ -84,6 +90,17 @@ namespace Barabas.GtkFace
 			{
 				stdout.printf("Disconnected from %s\n", hostname);
 			}
+		}
+		
+		private void on_user_password_authentication_request()
+		{
+			connect_dialog.hide();
+			
+			// TODO: make the path installable.
+			Gtk.Builder builder = new Gtk.Builder();
+			builder.add_from_file("../share/barabas-gtk.ui");
+			authentication_dialog = new UserPasswordAuthenticationDialog(builder);
+			authentication_dialog.run();
 		}
 	}
 }
