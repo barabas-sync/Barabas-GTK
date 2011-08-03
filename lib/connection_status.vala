@@ -19,17 +19,14 @@
 
 namespace Barabas.DBus.Client
 {
-	[DBus (name = "be.ac.ua.comp.Barabas.SyncedFile")]
-	public interface SyncedFile : Object
+	public enum ConnectionStatus
 	{
-		public abstract string get_name() throws IOError;
-		public abstract string get_mimetype() throws IOError;
-		public abstract int64 get_id() throws IOError;
-	
-		public abstract string[] tags() throws IOError;
-		public abstract int64[] versions() throws IOError;
-		public abstract int64 get_latest_version() throws IOError;
-	
-		public abstract string get_local_uri() throws IOError;
+		NOT_CONNECTED,
+		CONNECTING,
+		AUTHENTICATION_REQUEST,
+		AUTHENTICATING,
+		AUTHENTICATION_FAILED,
+		CONNECTED,
+		DISCONNECTED,
 	}
 }

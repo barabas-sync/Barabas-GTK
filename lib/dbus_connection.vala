@@ -23,18 +23,78 @@ namespace Barabas.DBus.Client
 	{
 		private class Connection () {}
 	
+		private static Barabas barabas;
+	
 		public static Barabas get_barabas() throws IOError
 		{
-			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ua.ac.cmi.comp.Barabas",
-			                          "/be/ua/ac/cmi/comp/Barabas");
+			if (barabas == null)
+			{
+				barabas = Bus.get_proxy_sync(BusType.SESSION,
+			                                 "be.ac.ua.comp.Barabas",
+			                                 "/be/ac/ua/comp/Barabas");
+			}
+			return barabas;
 		}
 		
-		public static SyncedFile get_file(string path) throws IOError
+		public static LocalFile get_local_file(int id) throws IOError
 		{
 			return Bus.get_proxy_sync(BusType.SESSION,
-			                          "be.ua.ac.cmi.comp.Barabas",
-			                          "/be/ua/ac/cmi/comp/Barabas/files/" + path);
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/local_files/" + id.to_string());
+		}
+		
+		public static SyncedFile get_synced_file(int local_id)
+		{
+			return Bus.get_proxy_sync(BusType.SESSION,
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/local_files/" +
+			                              local_id.to_string() +
+			                              "/synced_file");
+		}
+		
+		public static SyncedFileVersion get_file_version(int local_id, int64 version_id)
+		{
+			return Bus.get_proxy_sync(BusType.SESSION,
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/local_files/" +
+			                              local_id.to_string() +
+			                              "/synced_file/versions/" +
+			                              version_id.to_string());
+		}
+		
+		public static LocalFile copy_for_synced_file(SyncedFile synced_file,
+		                                             string uri,
+		                                             out int id)
+		    throws IOError
+		{
+			Barabas barabas = get_barabas();
+			
+			id = barabas.create_local_copy_for_id(synced_file.get_id(), uri);
+			return get_local_file(id);
+		}
+		
+		public static Download get_download(int id) throws IOError
+		{
+			return Bus.get_proxy_sync(BusType.SESSION,
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/downloads/" + id.to_string());
+		}
+		
+		public static Search get_search(int id) throws IOError
+		{
+			return Bus.get_proxy_sync(BusType.SESSION,
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/searches/" + id.to_string());
+		}
+		
+		public static SyncedFile get_search_result(int search_id, int64 file_id) throws IOError
+		{
+			return Bus.get_proxy_sync(BusType.SESSION,
+			                          "be.ac.ua.comp.Barabas",
+			                          "/be/ac/ua/comp/Barabas/searches/" + 
+			                                       search_id.to_string() + 
+			                                       "/"                   +
+			                                       file_id.to_string());
 		}
 	}
 }
