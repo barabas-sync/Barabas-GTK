@@ -182,8 +182,8 @@
     <columns>
       <!-- column-name name -->
       <column type="gchararray"/>
-      <!-- column-name file_info -->
-      <column type="FileInfo"/>
+      <!-- column-name file -->
+      <column type="BarabasDBusClientSyncedFile"/>
       <!-- column-name remote_id -->
       <column type="gint"/>
       <!-- column-name icon_name -->

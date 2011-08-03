@@ -19,17 +19,13 @@
 
 namespace Barabas.DBus.Client
 {
-	[DBus (name = "be.ac.ua.comp.Barabas.SyncedFile")]
-	public interface SyncedFile : Object
+	[DBus (name = "be.ac.ua.comp.Barabas.Download")]
+	public interface Download : Object
 	{
-		public abstract string get_name() throws IOError;
-		public abstract string get_mimetype() throws IOError;
-		public abstract int64 get_id() throws IOError;
+		public abstract void start_request() throws IOError;
 	
-		public abstract string[] tags() throws IOError;
-		public abstract int64[] versions() throws IOError;
-		public abstract int64 get_latest_version() throws IOError;
-	
-		public abstract string get_local_uri() throws IOError;
+		public signal void started();
+		public signal void progress(int64 progress, int64 total);
+		public signal void stopped();
 	}
 }

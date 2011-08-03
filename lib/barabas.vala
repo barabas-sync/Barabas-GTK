@@ -30,15 +30,10 @@ namespace Barabas.DBus.Client
 		public signal void status_changed(string host, ConnectionStatus status, string message);
 		public signal void user_password_authentication_request();
 	
-		public abstract string get_file_path(string uri) throws IOError;
-		public abstract string get_version_path(int version_id) throws IOError;
-		public abstract string get_file_path_for_remote(int remote_id) throws IOError;
-		public abstract string download_remote_to_uri(int remote_id, string uri) throws IOError;
+		public abstract int get_file_id_for_uri(string uri) throws IOError;
+		public abstract int search(string search_query) throws IOError;
 		
-		public abstract void search(string search) throws IOError;
-		public signal void search_completes(string search, int[] results);
-		
-		public abstract void request_file_info(int remote_id) throws IOError;
-		public signal void file_info_received(FileInfo info);
+		public abstract int create_local_copy_for_id(int64 file_id, string uri) throws IOError;
+		public abstract int download(string uri, int64 version_id) throws IOError;
 	}
 }

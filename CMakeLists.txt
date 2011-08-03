@@ -22,8 +22,12 @@ vala_precompile(BARABAS_GTK_C
                          lib/barabas.vala
                          lib/connection_status.vala
                          lib/dbus_connection.vala
+                         lib/download.vala
                          lib/file_info.vala
+                         lib/local_file.vala
+                         lib/search.vala
                          lib/synced_file.vala
+                         lib/synced_file_version.vala
                          lib/user_password_authentication.vala
                 PACKAGES gtk+-3.0 glib-2.0 gio-2.0 gmodule-2.0 gee-1.0)
 

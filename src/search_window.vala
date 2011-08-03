@@ -30,6 +30,9 @@ namespace Barabas.GtkFace
 		private string current_search_query;
 		private Gee.Set<int> current_search_results;
 		private Client.Barabas barabas;
+		private Client.Download download;
+		
+		private Client.Search current_search;
 	
 		public SearchWindow(Gtk.Builder builder)
 		{
@@ -37,12 +40,11 @@ namespace Barabas.GtkFace
 			search_entry = builder.get_object("searchEntry") as Gtk.Entry;
 			remote_files_list_store = builder.get_object("remoteFilesListStore") as Gtk.ListStore;
 			builder.connect_signals(this);
+			current_search = null;
 			
 			try
 			{
 				barabas = Client.Connection.get_barabas();
-				barabas.search_completes.connect(on_search_completes);
-				barabas.file_info_received.connect(on_file_info_received);
 			}
 			catch (IOError error)
 			{
@@ -66,9 +68,34 @@ namespace Barabas.GtkFace
 		{
 			try
 			{
+				// TODO: free current search
+				if (current_search != null)
+				{
+					//current_search.free();
+				}
 				remote_files_list_store.clear();
 				current_search_query = search_entry.text;
-				barabas.search(search_entry.text);
+				int search_id = barabas.search(search_entry.text);
+				current_search = Client.Connection.get_search(search_id);
+				foreach (int64 result in current_search.get_results())
+				{
+					Client.SyncedFile file = Client.Connection.get_search_result(search_id, result);
+					Gtk.TreeIter iter;
+					remote_files_list_store.append(out iter);
+					GLib.Icon icon = GLib.ContentType.get_icon(file.get_mimetype());
+					string icon_name = "text-x-generic";
+					if (icon is GLib.ThemedIcon)
+					{
+						GLib.ThemedIcon themed_icon = icon as GLib.ThemedIcon;
+						string[] names = themed_icon.get_names();
+						icon_name = names[names.length - 1];
+					}
+					remote_files_list_store.set(iter, 0, file.get_name(),
+							                          1, file,
+							                          2, file.get_id(), 
+							                          3, icon_name,
+							                          -1);
+				}
 			}
 			catch (IOError error)
 			{
@@ -102,13 +129,12 @@ namespace Barabas.GtkFace
 			if (!remote_files_list_store.get_iter(out iter, path))
 				return;
 			
-			FileInfo? file_info;
-			remote_files_list_store.get(iter, 1, out file_info);
-			
+			Client.SyncedFile? synced_file;
+			remote_files_list_store.get(iter, 1, out synced_file);
 			try
 			{
-				string file_path = barabas.get_file_path_for_remote(file_info.remote_id);
-				if (file_path == "")
+				string local_uri = synced_file.get_local_uri();
+				if (local_uri == "")
 				{
 					Gtk.FileChooserDialog save_dialog =
 					    new Gtk.FileChooserDialog("Save file", search_window,
@@ -118,34 +144,42 @@ namespace Barabas.GtkFace
 					                              Gtk.Stock.OK,
 					                              Gtk.ResponseType.OK);
 					save_dialog.do_overwrite_confirmation = true;
-					save_dialog.local_only = true; // Saving from remote to network disk seems not sensible.
-					save_dialog.set_current_name(file_info.name);
+					save_dialog.local_only = true;
+					// Saving from remote to network disk seems not sensible.
+					save_dialog.set_current_name(synced_file.get_name());
 					int response = save_dialog.run();
 					
 					if (response == Gtk.ResponseType.OK)
 					{
 						stdout.printf("Accepted %s\n", save_dialog.get_uri());
 						
-						file_path = barabas.download_remote_to_uri(file_info.remote_id, save_dialog.get_uri());
-						Client.SyncedFile file = Client.Connection.get_file(file_path);
-						file.sync_started.connect((download) => {
-							stdout.printf("Downloading\n");
-						});
+						int file_id;
+						Client.LocalFile local_file =
+						    Client.Connection.copy_for_synced_file (
+                                synced_file,
+                                save_dialog.get_uri(),
+                                out file_id);
+						int64 latest_version = synced_file.get_latest_version();
+						Client.SyncedFileVersion sf_version =
+						      Client.Connection.get_file_version(file_id,
+						                                         latest_version);
+						int download_id = barabas.download(save_dialog.get_uri(), latest_version);
+						download = Client.Connection.get_download(download_id);
 						
-						file.sync_progress.connect((current, total) => {
-							stdout.printf("Downloading %d / %d\n", (int)current, (int)total);
-						});
+						download.started.connect(download_started);
 						
-						file.sync_stopped.connect((success) => {
-							stdout.printf("Downloaded \n");
-						});
+						download.progress.connect(download_progress);
+						
+						download.stopped.connect(download_stopped);
+						
+						download.start_request();
 						
 						// TODO: show a app chooser
-						GLib.AppInfo app = GLib.AppInfo.get_default_for_type(file_info.mimetype, true);
+						GLib.AppInfo app = GLib.AppInfo.get_default_for_type(synced_file.get_mimetype(), true);
 						try
 						{
 							GLib.List<GLib.File> uris = new GLib.List<GLib.File>();
-							uris.append (GLib.File.new_for_uri(file.get_uri()));
+							uris.append (GLib.File.new_for_uri(save_dialog.get_uri()));
 							app.launch(uris, null);
 						}
 						catch (Error error)
@@ -161,14 +195,20 @@ namespace Barabas.GtkFace
 				}
 				else
 				{
-					Client.SyncedFile file = Client.Connection.get_file(file_path);
-				
 					// TODO: show a app chooser
-					GLib.AppInfo app = GLib.AppInfo.get_default_for_type(file_info.mimetype, true);
+					stdout.printf("Opening app for %s with type %s\n", local_uri, synced_file.get_mimetype());
+					GLib.AppInfo? app = GLib.AppInfo.get_default_for_type(synced_file.get_mimetype(), true);
+					
+					if (app == null)
+					{
+						stdout.printf("No app found\n");
+						return;
+					}
+					
 					try
 					{
 						GLib.List<GLib.File> uris = new GLib.List<GLib.File>();
-						uris.append (GLib.File.new_for_uri(file.get_uri()));
+						uris.append (GLib.File.new_for_uri(local_uri));
 						app.launch(uris, null);
 					}
 					catch (Error error)
@@ -183,58 +223,23 @@ namespace Barabas.GtkFace
 			}
 		}
 		
+		private void download_started()
+		{
+		}
+		
+		private void download_progress(int64 progress, int64 total)
+		{
+			stdout.printf("Progress..\n");
+		}
+		
+		private void download_stopped()
+		{
+			stdout.printf("Stopped\n");
+		}
+		
 		private void dbus_error(IOError error)
 		{
 			//TODO: implement this
-		}
-		
-		private void on_search_completes(string search, int[] remotes)
-		{
-			// Only list the results if the search query result was the
-			// last executed search query.
-			if (current_search_query == search)
-			{
-				current_search_query = "";
-				current_search_results = new Gee.HashSet<int>();
-				foreach (int remote_id in remotes)
-				{
-					current_search_results.add(remote_id);
-					try
-					{
-						barabas.request_file_info(remote_id);
-					}
-					catch (IOError error)
-					{
-						dbus_error(error);
-					}
-				}
-			}
-		}
-		
-		private void on_file_info_received(FileInfo info)
-		{
-			// This is hack to prevent same results appearing more than once.
-			// It seems we get the signal multiple times (sometimes).
-			if (!(info.remote_id in current_search_results))
-				return;
-			
-			current_search_results.remove(info.remote_id);
-		
-			Gtk.TreeIter iter;
-			remote_files_list_store.append(out iter);
-			GLib.Icon icon = GLib.ContentType.get_icon(info.mimetype);
-			string icon_name = "text-x-generic";
-			if (icon is GLib.ThemedIcon)
-			{
-				GLib.ThemedIcon themed_icon = icon as GLib.ThemedIcon;
-				string[] names = themed_icon.get_names();
-				icon_name = names[names.length - 1];
-			}
-			remote_files_list_store.set(iter, 0, info.name,
-			                                  1, info,
-			                                  2, info.remote_id, 
-			                                  3, icon_name,
-			                                  -1);
 		}
 	}
 }
