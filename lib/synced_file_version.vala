@@ -22,6 +22,6 @@ namespace Barabas.DBus.Client
 	[DBus (name = "be.ac.ua.comp.Barabas.SyncedFileVersion")]
 	public interface SyncedFileVersion : Object
 	{
-		public abstract int64 get_id() throws IOError;
+		public abstract string get_name() throws IOError;
 	}
 }

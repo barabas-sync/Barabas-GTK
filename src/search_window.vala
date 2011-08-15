@@ -30,9 +30,10 @@ namespace Barabas.GtkFace
 		private string current_search_query;
 		private Gee.Set<int> current_search_results;
 		private Client.Barabas barabas;
-		private Client.Download download;
 		
 		private Client.Search current_search;
+		
+		private Gee.List<Download> downloads;
 	
 		public SearchWindow(Gtk.Builder builder)
 		{
@@ -41,6 +42,7 @@ namespace Barabas.GtkFace
 			remote_files_list_store = builder.get_object("remoteFilesListStore") as Gtk.ListStore;
 			builder.connect_signals(this);
 			current_search = null;
+			downloads = new Gee.ArrayList<Download>();
 			
 			try
 			{
@@ -164,28 +166,12 @@ namespace Barabas.GtkFace
 						      Client.Connection.get_file_version(file_id,
 						                                         latest_version);
 						int download_id = barabas.download(save_dialog.get_uri(), latest_version);
-						download = Client.Connection.get_download(download_id);
-						
-						download.started.connect(download_started);
-						
-						download.progress.connect(download_progress);
-						
-						download.stopped.connect(download_stopped);
-						
-						download.start_request();
-						
-						// TODO: show a app chooser
-						GLib.AppInfo app = GLib.AppInfo.get_default_for_type(synced_file.get_mimetype(), true);
-						try
-						{
-							GLib.List<GLib.File> uris = new GLib.List<GLib.File>();
-							uris.append (GLib.File.new_for_uri(save_dialog.get_uri()));
-							app.launch(uris, null);
-						}
-						catch (Error error)
-						{
-							// TODO: Show error bar
-						}
+						Download download = new Download(synced_file, Client.Connection.get_download(download_id), save_dialog.get_uri());
+						download.stopped.connect((the_download) => {
+							downloads.remove(the_download);
+						});
+						downloads.add(download);
+						download.start();
 					}
 					else
 					{

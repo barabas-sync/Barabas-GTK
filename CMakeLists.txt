@@ -14,6 +14,7 @@ link_directories(${GTK_LIBRARY_DIRS})
 include(ValaPrecompile)
 vala_precompile(BARABAS_GTK_C
                          src/connect_dialog.vala
+                         src/download.vala
                          src/main.vala
                          src/system_tray.vala
                          src/search_window.vala
