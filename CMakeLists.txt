@@ -33,3 +33,18 @@ vala_precompile(BARABAS_GTK_C
                 PACKAGES gtk+-3.0 glib-2.0 gio-2.0 gmodule-2.0 gee-1.0)
 
 add_executable("barabas-gtk" ${BARABAS_GTK_C})
+
+install(TARGETS barabas-gtk
+                RUNTIME DESTINATION bin)
+install(FILES share/barabas-gtk.ui
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/share/barabas-gtk)
+
+INCLUDE(CPack)
+# Package generic stuff
+SET(CPACK_GENERATOR "RPM")
+SET(CPACK_PACKAGE_NAME "barabas-gtk")
+SET(CPACK_PACKAGE_VERSION "0.0.1")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Barabas GTK Search program.")
+
+# RPM / Fedora specific stuff
+SET(CPACK_RPM_PACKAGE_REQUIRES "gtk3 >= 3.0, glib2 >= 2.28, libgee >= 0.6.1")

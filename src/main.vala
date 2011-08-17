@@ -28,6 +28,7 @@ namespace Barabas.GtkFace
 			app.start();
 		}
 	
+		private static string ui_file = null;
 	
 		private SearchWindow search_window;
 		private ConnectDialog connect_dialog;
@@ -41,13 +42,13 @@ namespace Barabas.GtkFace
 			tray_icon = new SystemTrayIcon();
 			tray_icon.activate_search_window.connect(on_search_window);
 			
-			// TODO: make the path installable.
 			Gtk.Builder builder = new Gtk.Builder();
-			builder.add_from_file("../share/barabas-gtk.ui");
+			builder.add_from_file(find_ui_file());
 			
 			barabas = DBus.Client.Connection.get_barabas();
 			barabas.user_password_authentication_request.connect(on_user_password_authentication_request);
 			barabas.enable_authentication_method("user-password");
+			barabas.status_changed.connect(on_server_status_changed);
 			
 			connect_dialog = new ConnectDialog(builder);
 			GLib.Idle.add(() => { connect_dialog.run(); return false; });
@@ -64,7 +65,7 @@ namespace Barabas.GtkFace
 			{
 				// TODO: make the path installable.
 				Gtk.Builder builder = new Gtk.Builder();
-				builder.add_from_file("../share/barabas-gtk.ui");
+				builder.add_from_file(find_ui_file());
 			
 				search_window = new SearchWindow(builder);
 			}
@@ -96,11 +97,30 @@ namespace Barabas.GtkFace
 		{
 			connect_dialog.hide();
 			
-			// TODO: make the path installable.
 			Gtk.Builder builder = new Gtk.Builder();
-			builder.add_from_file("../share/barabas-gtk.ui");
+			builder.add_from_file(Main.find_ui_file());
 			authentication_dialog = new UserPasswordAuthenticationDialog(builder);
 			authentication_dialog.run();
+		}
+		
+		private static string find_ui_file()
+		{
+			if (ui_file != null)
+			{
+				return ui_file;
+			}
+			string[] dirs = {"../share/", "/usr/share/barabas-gtk/"};
+			
+			foreach (string dir in dirs)
+			{
+				GLib.File test = GLib.File.new_for_path(dir + "barabas-gtk.ui");
+				if (test.query_exists())
+				{
+					ui_file = dir + "barabas-gtk.ui";
+					break;
+				}
+			}
+			return ui_file;
 		}
 	}
 }
