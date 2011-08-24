@@ -55,7 +55,12 @@ namespace Barabas.GtkFace
 			barabas.status_changed.connect(on_server_status_changed);
 			
 			connect_dialog = new ConnectDialog(builder);
-			GLib.Idle.add(() => { connect_dialog.run(); return false; });
+			
+			if (barabas.get_status() == DBus.Client.ConnectionStatus.NOT_CONNECTED ||
+			    barabas.get_status() == DBus.Client.ConnectionStatus.DISCONNECTED)
+			{
+				GLib.Idle.add(() => { connect_dialog.run(); return false; });
+			}
 		}
 		
 		public void start()
