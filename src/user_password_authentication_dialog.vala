@@ -52,6 +52,11 @@ namespace Barabas.GtkFace
 			barabas.status_changed.connect(on_server_status_changed);
 		}
 		
+		~UserPasswordAuthenticationDialog()
+		{
+			barabas.status_changed.disconnect(on_server_status_changed);
+		}
+		
 		public void run()
 		{
 			user_password_dialog.run();
