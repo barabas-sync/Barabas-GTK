@@ -74,6 +74,7 @@ namespace Barabas.GtkFace
 			{
 				user_password_dialog.hide();
 				barabas.authenticate_cancel();
+				return;
 			}
 			login_button.set_sensitive(false);
 			var authentication = DBus.Client.UserPasswordAuthentication();

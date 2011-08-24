@@ -58,11 +58,16 @@ namespace Barabas.GtkFace
 			barabas = DBus.Client.Connection.get_barabas();
 			barabas.status_changed.connect(on_server_status_changed);
 			is_running = false;
+			info_bar = null;
 		}
 		
 		public void run()
 		{
 			is_running = true;
+			if (info_bar != null)
+			{
+				main_grid.remove(info_bar);
+			}
 			connect_dialog.run();
 		}
 		
@@ -77,9 +82,13 @@ namespace Barabas.GtkFace
 		{
 			if (response != CONNECT)
 			{
+				barabas.connect_cancel();
 				hide();
+				return;
 			}
 			connect_button.set_sensitive(false);
+			servername_combo_box_text.set_sensitive(false);
+			server_port_spin_button.set_sensitive(false);
 			try
 			{
 				barabas.connect_server(servername_combo_box_text.get_active_text(),
@@ -116,6 +125,8 @@ namespace Barabas.GtkFace
 				case DBus.Client.ConnectionStatus.NOT_CONNECTED:
 					info_bar = null;
 					connect_button.set_sensitive(true);
+					servername_combo_box_text.set_sensitive(true);
+					server_port_spin_button.set_sensitive(true);
 					return;
 				case DBus.Client.ConnectionStatus.CONNECTING:
 				case DBus.Client.ConnectionStatus.AUTHENTICATING:
@@ -141,6 +152,8 @@ namespace Barabas.GtkFace
 					label.set_text("Could not connect to '" + host + "': \"" + msg + "\".");
 					info_bar.add_button(Gtk.Stock.REFRESH, RETRY);
 					connect_button.set_sensitive(true);
+					servername_combo_box_text.set_sensitive(true);
+					server_port_spin_button.set_sensitive(true);
 					break;
 			}
 			box.add(label);
@@ -156,6 +169,11 @@ namespace Barabas.GtkFace
 			if (response == CANCEL)
 			{
 				barabas.connect_cancel();
+			}
+			else if (response == RETRY)
+			{
+				barabas.connect_server(servername_combo_box_text.get_active_text(),
+				                       (int16)server_port_spin_button.get_value_as_int());
 			}
 		}
 	}
