@@ -25,8 +25,10 @@ namespace Barabas.DBus.Client
 		public abstract void enable_authentication_method(string authentication_method) throws IOError;
 		public abstract void connect_server(string host, int16 port) throws IOError;
 		public abstract void connect_cancel() throws IOError;
+		public abstract void disconnect() throws IOError;
 		public abstract void authenticate_user_password(UserPasswordAuthentication authentication) throws IOError;
 		public abstract void authenticate_cancel() throws IOError;
+		public abstract ConnectionStatus get_status() throws IOError;
 		public signal void status_changed(string host, ConnectionStatus status, string message);
 		public signal void user_password_authentication_request();
 	

@@ -135,10 +135,13 @@ namespace Barabas.GtkFace
 			}
 			box.add(label);
 			
-			info_bar.show_all();
+			if (info_bar != null)
+			{
+				info_bar.show_all();
 			
-			main_grid.attach_next_to(info_bar, username_label,
-			                         Gtk.PositionType.TOP, 2, 1);
+				main_grid.attach_next_to(info_bar, username_label,
+					                     Gtk.PositionType.TOP, 2, 1);
+			}
 		}
 	}
 }

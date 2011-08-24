@@ -41,6 +41,8 @@ namespace Barabas.GtkFace
 		
 		private bool needs_pulse;
 	
+		public bool is_running { get; private set; }
+	
 		public ConnectDialog(Gtk.Builder builder)
 		{
 			connect_dialog = builder.get_object("connectDialog") as Gtk.Dialog;
@@ -55,15 +57,18 @@ namespace Barabas.GtkFace
 			
 			barabas = DBus.Client.Connection.get_barabas();
 			barabas.status_changed.connect(on_server_status_changed);
+			is_running = false;
 		}
 		
 		public void run()
 		{
+			is_running = true;
 			connect_dialog.run();
 		}
 		
 		public void hide()
 		{
+			is_running = false;
 			connect_dialog.hide();
 		}
 		
@@ -72,7 +77,7 @@ namespace Barabas.GtkFace
 		{
 			if (response != CONNECT)
 			{
-				connect_dialog.hide();
+				hide();
 			}
 			connect_button.set_sensitive(false);
 			try

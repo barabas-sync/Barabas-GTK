@@ -178,6 +178,11 @@
       <action-widget response="1">connectButton</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-find</property>
+  </object>
   <object class="GtkListStore" id="remoteFilesListStore">
     <columns>
       <!-- column-name name -->
@@ -263,6 +268,54 @@
             <property name="height">1</property>
           </packing>
         </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="status_icon_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkImageMenuItem" id="menuitem1">
+        <property name="label" translatable="yes">Search</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="image">image1</property>
+        <property name="use_stock">False</property>
+        <signal name="activate" handler="barabas_gtk_face_system_tray_icon_on_activate_search_menuitem" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="status_icon_menu_connect_menuitem">
+        <property name="label">gtk-connect</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="barabas_gtk_face_system_tray_icon_on_activate_connect_menuitem" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="status_icon_menu_disconnect_menuitem">
+        <property name="label">gtk-disconnect</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="barabas_gtk_face_system_tray_icon_on_activate_disconnect_menuitem" swapped="no"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkImageMenuItem" id="menuitem2">
+        <property name="label">gtk-quit</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="use_underline">True</property>
+        <property name="use_stock">True</property>
+        <signal name="activate" handler="barabas_gtk_face_system_tray_icon_on_activate_quit_menuitem" swapped="no"/>
       </object>
     </child>
   </object>

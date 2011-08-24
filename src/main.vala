@@ -39,13 +39,17 @@ namespace Barabas.GtkFace
 	
 		public Main()
 		{
-			tray_icon = new SystemTrayIcon();
+			barabas = DBus.Client.Connection.get_barabas();
+		
+			tray_icon = new SystemTrayIcon(barabas, find_ui_file());
 			tray_icon.activate_search_window.connect(on_search_window);
+			tray_icon.activate_connect.connect(on_connect);
+			tray_icon.activate_disconnect.connect(on_disconnect);
+			tray_icon.activate_quit.connect(on_quit);
 			
 			Gtk.Builder builder = new Gtk.Builder();
 			builder.add_from_file(find_ui_file());
 			
-			barabas = DBus.Client.Connection.get_barabas();
 			barabas.user_password_authentication_request.connect(on_user_password_authentication_request);
 			barabas.enable_authentication_method("user-password");
 			barabas.status_changed.connect(on_server_status_changed);
@@ -70,6 +74,24 @@ namespace Barabas.GtkFace
 				search_window = new SearchWindow(builder);
 			}
 			search_window.toggle_show();
+		}
+		
+		private void on_connect()
+		{
+			if (!connect_dialog.is_running)
+			{
+				connect_dialog.run();
+			}
+		}
+		
+		private void on_disconnect()
+		{
+			barabas.disconnect();
+		}
+		
+		private void on_quit()
+		{
+			Gtk.main_quit();
 		}
 		
 		private void on_server_status_changed(string hostname,
