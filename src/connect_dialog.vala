@@ -68,6 +68,13 @@ namespace Barabas.GtkFace
 			{
 				main_grid.remove(info_bar);
 			}
+			
+			servername_combo_box_text.remove_all();
+			foreach (DBus.Client.HostConfiguration host in barabas.get_recently_used_hosts())
+			{
+				servername_combo_box_text.append_text(host.host);
+			}
+			
 			connect_dialog.run();
 		}
 		

@@ -31,6 +31,8 @@ namespace Barabas.DBus.Client
 		public abstract ConnectionStatus get_status() throws IOError;
 		public signal void status_changed(string host, ConnectionStatus status, string message);
 		public signal void user_password_authentication_request();
+		
+		public abstract HostConfiguration[] get_recently_used_hosts() throws IOError;
 	
 		public abstract int get_file_id_for_uri(string uri) throws IOError;
 		public abstract int search(string search_query) throws IOError;

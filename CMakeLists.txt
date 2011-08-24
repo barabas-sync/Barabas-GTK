@@ -25,6 +25,7 @@ vala_precompile(BARABAS_GTK_C
                          lib/dbus_connection.vala
                          lib/download.vala
                          lib/file_info.vala
+                         lib/host_configuration.vala
                          lib/local_file.vala
                          lib/search.vala
                          lib/synced_file.vala
