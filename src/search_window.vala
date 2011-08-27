@@ -70,10 +70,9 @@ namespace Barabas.GtkFace
 		{
 			try
 			{
-				// TODO: free current search
 				if (current_search != null)
 				{
-					//current_search.free();
+					current_search.free();
 				}
 				remote_files_list_store.clear();
 				current_search_query = search_entry.text;
@@ -172,6 +171,7 @@ namespace Barabas.GtkFace
 						});
 						downloads.add(download);
 						download.start();
+						local_file.release();
 					}
 					else
 					{

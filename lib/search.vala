@@ -23,7 +23,6 @@ namespace Barabas.DBus.Client
 	public interface Search : Object
 	{
 		public abstract int64[] get_results() throws IOError;
-		
-		//public abstract void free() throws IOError;
+		public abstract void free() throws IOError;
 	}
 }
