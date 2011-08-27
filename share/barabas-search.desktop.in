@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Icon=barabas-search
+Name=Barabas Synchronization
+Comment=Synchronize files with other devices over the internet
+Exec=${CMAKE_INSTALL_PREFIX}/bin/barabas-gtk
+Categories=Network;FileTransfer;
+

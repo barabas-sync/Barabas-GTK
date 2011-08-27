@@ -35,7 +35,7 @@ namespace Barabas.GtkFace
 			gtk_ui_file = ui_file;
 			this.barabas = barabas;
 		
-			status_icon = new Gtk.StatusIcon.from_icon_name("folder-remote");
+			status_icon = new Gtk.StatusIcon.from_icon_name("barabas-search");
 			status_icon.title = "Barabas";
 			status_icon.visible = true;
 			status_icon.activate.connect(on_clicked);

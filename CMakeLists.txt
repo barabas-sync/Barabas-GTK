@@ -40,6 +40,19 @@ install(TARGETS barabas-gtk
 install(FILES share/barabas-gtk.ui
               DESTINATION ${CMAKE_INSTALL_PREFIX}/share/barabas-gtk)
 
+configure_file(share/barabas-search.desktop.in
+               share/barabas-search.desktop)
+install(FILES ${CMAKE_BINARY_DIR}/share/barabas-search.desktop
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+
+install(FILES share/icons/barabas-search.svg
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps)
+
+foreach(size 16 22 24 32 48)
+	install(FILES share/icons/${size}x${size}/barabas-search.png
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${size}x${size}/apps)
+endforeach()
+
 INCLUDE(CPack)
 # Package generic stuff
 SET(CPACK_GENERATOR "RPM")
