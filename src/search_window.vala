@@ -26,6 +26,10 @@ namespace Barabas.GtkFace
 		private Gtk.Window search_window;
 		private Gtk.Entry search_entry;
 		private Gtk.ListStore remote_files_list_store;
+		private Gtk.Grid main_grid;
+		private Gtk.ScrolledWindow search_results_scrolled_window;
+		
+		private Gtk.InfoBar status_info_bar;
 		
 		private string current_search_query;
 		private Gee.Set<int> current_search_results;
@@ -40,6 +44,8 @@ namespace Barabas.GtkFace
 			search_window = builder.get_object("searchWindow") as Gtk.Window;
 			search_entry = builder.get_object("searchEntry") as Gtk.Entry;
 			remote_files_list_store = builder.get_object("remoteFilesListStore") as Gtk.ListStore;
+			main_grid = builder.get_object("searchWindowGrid") as Gtk.Grid;
+			search_results_scrolled_window = builder.get_object("searchResultsScrolledWindow") as Gtk.ScrolledWindow;
 			builder.connect_signals(this);
 			current_search = null;
 			downloads = new Gee.ArrayList<Download>();
@@ -47,6 +53,9 @@ namespace Barabas.GtkFace
 			try
 			{
 				barabas = Client.Connection.get_barabas();
+				
+				barabas.status_changed.connect(on_connection_status_changed);
+				on_connection_status_changed("", barabas.get_status(), "");
 			}
 			catch (IOError error)
 			{
@@ -221,6 +230,66 @@ namespace Barabas.GtkFace
 		private void download_stopped()
 		{
 			stdout.printf("Stopped\n");
+		}
+		
+		private void on_connection_status_changed(string host,
+		                                          Barabas.DBus.Client.ConnectionStatus status,
+		                                          string message)
+		{
+			if (status_info_bar != null)
+			{
+				main_grid.remove(status_info_bar);
+				status_info_bar = null;
+			}
+			switch(status)
+			{
+				case Barabas.DBus.Client.ConnectionStatus.CONNECTED:
+					
+					break;
+				case Barabas.DBus.Client.ConnectionStatus.NOT_CONNECTED:
+					status_info_bar = new Gtk.InfoBar();
+					status_info_bar.set_message_type(Gtk.MessageType.INFO);
+
+					Gtk.Container container = status_info_bar.get_content_area() as Gtk.Container;
+
+					Gtk.Label label = new Gtk.Label("You are not connected.");
+					container.add(label);
+					break;
+				case Barabas.DBus.Client.ConnectionStatus.CONNECTING:
+				case Barabas.DBus.Client.ConnectionStatus.AUTHENTICATION_REQUEST:
+				case Barabas.DBus.Client.ConnectionStatus.AUTHENTICATING:
+				case Barabas.DBus.Client.ConnectionStatus.AUTHENTICATION_FAILED:
+					status_info_bar = new Gtk.InfoBar();
+					status_info_bar.set_message_type(Gtk.MessageType.INFO);
+
+					Gtk.Container container = status_info_bar.get_content_area() as Gtk.Container;
+					Gtk.Box box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
+
+					Gtk.Spinner spinner = new Gtk.Spinner();
+					spinner.start();
+					Gtk.Label label = new Gtk.Label("Connecting...");
+					box.add(spinner);
+					box.add(label);
+					container.add(box);
+					break;
+				case Barabas.DBus.Client.ConnectionStatus.DISCONNECTED:
+					status_info_bar = new Gtk.InfoBar();
+					status_info_bar.set_message_type(Gtk.MessageType.ERROR);
+					
+					Gtk.Container container = status_info_bar.get_content_area() as Gtk.Container;
+		
+					Gtk.Label label = new Gtk.Label("Disconnected. " + message);
+					container.add(label);
+					break;
+			}
+			
+			if (status_info_bar != null)
+			{
+				status_info_bar.show_all();
+				stdout.printf("HOLE DISD\n");
+				main_grid.attach_next_to(status_info_bar, search_results_scrolled_window,
+			                             Gtk.PositionType.TOP, 1, 1);
+			}
 		}
 		
 		private void dbus_error(IOError error)

@@ -201,11 +201,10 @@
     <property name="title" translatable="yes">Barabas</property>
     <signal name="delete-event" handler="barabas_gtk_face_search_window_on_delete_window" swapped="no"/>
     <child>
-      <object class="GtkGrid" id="grid1">
+      <object class="GtkGrid" id="searchWindowGrid">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="row_homogeneous">True</property>
-        <property name="n_rows">2</property>
         <property name="n_columns">1</property>
         <child>
           <object class="GtkEntry" id="searchEntry">
@@ -229,7 +228,10 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow1">
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="searchResultsScrolledWindow">
             <property name="width_request">400</property>
             <property name="height_request">250</property>
             <property name="visible">True</property>
@@ -263,7 +265,7 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
+            <property name="top_attach">2</property>
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
