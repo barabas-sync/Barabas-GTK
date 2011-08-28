@@ -23,7 +23,7 @@ namespace Barabas.DBus.Client
 	[DBus (name = "be.ac.ua.comp.Barabas.LocalFile")]
 	public interface LocalFile : Object
 	{
-		public void release() throws IOError;
+		public abstract void release() throws IOError;
 		
 		public signal void released();
 	}
