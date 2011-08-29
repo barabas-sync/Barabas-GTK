@@ -7,6 +7,22 @@ find_package(Vala REQUIRED)
 
 find_package(PkgConfig)
 pkg_check_modules(GTK REQUIRED gtk+-3.0 glib-2.0>=2.28 gio-2.0>=2.28 gmodule-2.0 gee-1.0)
+
+# Ubuntu App Indicator's support
+pkg_check_modules(APPINDICATOR appindicator3-0.1)
+if(${APPINDICATOR_FOUND})
+	message(STATUS "Using Ubuntu's App indicator")
+	add_definitions(${APPINDICATOR_CFLAGS})
+	set(VALA_OPTIONS -D ENABLE_APPINDICATOR)
+	set(EXTRA_VALA_PACKAGES appindicator3-0.1)
+	link_libraries(${APPINDICATOR_LIBRARIES})
+	link_directories(${APPINDICATOR_LIBRARY_DIRS})
+else()
+	set(VALA_OPTIONS "")
+	set(EXTRA_VALA_PACKAGES "")
+endif()
+
+
 add_definitions(${GTK_CFLAGS} ${GTK_CFLAGS_OTHER} -g)
 link_libraries(${GTK_LIBRARIES})
 link_directories(${GTK_LIBRARY_DIRS})
@@ -31,7 +47,13 @@ vala_precompile(BARABAS_GTK_C
                          lib/synced_file.vala
                          lib/synced_file_version.vala
                          lib/user_password_authentication.vala
-                PACKAGES gtk+-3.0 glib-2.0 gio-2.0 gmodule-2.0 gee-1.0)
+				OPTIONS ${VALA_OPTIONS}
+                PACKAGES gtk+-3.0
+                         glib-2.0
+                         gio-2.0
+                         gmodule-2.0
+                         gee-1.0
+                         ${EXTRA_VALA_PACKAGES})
 
 add_executable("barabas-gtk" ${BARABAS_GTK_C})
 

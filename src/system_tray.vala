@@ -23,11 +23,17 @@ namespace Barabas.GtkFace
 	class SystemTrayIcon
 	{
 		private string gtk_ui_file;	
-
-		private Gtk.StatusIcon status_icon;
-		private Gtk.Menu status_menu;
 		
 		private DBus.Client.Barabas barabas;
+		private Gtk.Menu status_menu;
+		private Gtk.MenuItem connect_menuitem;
+		private Gtk.MenuItem disconnect_menuitem;
+
+		#if ENABLE_APPINDICATOR
+			private AppIndicator.Indicator indicator;
+		#else
+			private Gtk.StatusIcon status_icon;
+		#endif
 	
 		public SystemTrayIcon(DBus.Client.Barabas barabas,
 		                      string ui_file)
@@ -35,12 +41,22 @@ namespace Barabas.GtkFace
 			gtk_ui_file = ui_file;
 			this.barabas = barabas;
 		
-			status_icon = new Gtk.StatusIcon.from_icon_name("barabas-search");
-			status_icon.title = "Barabas";
-			status_icon.visible = true;
-			status_icon.activate.connect(on_clicked);
-			status_icon.popup_menu.connect(on_menu);
-			
+			#if ENABLE_APPINDICATOR
+				stdout.printf("Using Ubuntu's stupid shit...\n");
+				indicator = new AppIndicator.Indicator("be.ac.ua.comp.Barabas",
+				                                       "barabas-search",
+				                                       AppIndicator.IndicatorCategory.APPLICATION_STATUS);
+				indicator.set_menu(create_menu());
+				indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE);
+			#else
+				stdout.printf("Alternative code path\n");
+				status_icon = new Gtk.StatusIcon.from_icon_name("barabas-search");
+				status_icon.title = "Barabas";
+				status_icon.visible = true;
+				status_icon.activate.connect(on_clicked);
+				status_icon.popup_menu.connect(on_menu);
+			#endif
+
 			barabas.status_changed.connect(change_status);
 			change_status("", barabas.get_status(), "");
 		}
@@ -49,28 +65,48 @@ namespace Barabas.GtkFace
 		                           DBus.Client.ConnectionStatus status,
 		                           string msg)
 		{
+			string label = "";
 			switch (status)
 			{
 				case DBus.Client.ConnectionStatus.NOT_CONNECTED:
-					status_icon.tooltip_text = "Not connected";
+					label = "Not connected";
 					break;
 				case DBus.Client.ConnectionStatus.CONNECTING:
-					status_icon.tooltip_text = "Connecting...";
+					label = "Connecting...";
 					break;
 				case DBus.Client.ConnectionStatus.AUTHENTICATION_REQUEST:
 				case DBus.Client.ConnectionStatus.AUTHENTICATING:
-					status_icon.tooltip_text = "Authenticating";
+					label = "Authenticating";
 					break;
 				case DBus.Client.ConnectionStatus.AUTHENTICATION_FAILED:
-					status_icon.tooltip_text = "Authentication failed";
+					label = "Authentication failed";
 					break;
 				case DBus.Client.ConnectionStatus.CONNECTED:
-					status_icon.tooltip_text = "Connected";
+					label = "Connected";
 					break;
 				case DBus.Client.ConnectionStatus.DISCONNECTED:
-					status_icon.tooltip_text = "Disconnected";
+					label = "Disconnected";
 					break;
 			}
+			if (status_menu != null)
+			{
+				if (status == DBus.Client.ConnectionStatus.CONNECTED)
+				{
+					connect_menuitem.hide();
+					disconnect_menuitem.show();
+				}
+				else
+				{
+					connect_menuitem.show();
+					disconnect_menuitem.hide();
+				}
+			}
+			
+			#if ENABLE_APPINDICATOR
+				//indicator.set_label(label, "Test");
+			#else
+				status_icon.tooltip_text = label;
+			#endif
 		}
 		
 		private void on_clicked(Gtk.StatusIcon src)
@@ -78,27 +114,37 @@ namespace Barabas.GtkFace
 			activate_search_window();
 		}
 		
-		private void on_menu(uint button, uint time)
+		#if !ENABLE_APPINDICATOR
+			private void on_menu(uint button, uint time)
+			{
+				if (status_menu == null)
+				{
+					status_menu = create_menu();
+				}
+				status_menu.popup(null, null, status_icon.position_menu, button, time);			
+			}
+		#endif
+		
+		private Gtk.Menu create_menu()
 		{
 			Gtk.Builder builder = new Gtk.Builder();
 			builder.add_from_file(gtk_ui_file);
 			builder.connect_signals(this);
 			
 			status_menu = builder.get_object("status_icon_menu") as Gtk.Menu;
-			Gtk.MenuItem connect = builder.get_object("status_icon_menu_connect_menuitem") as Gtk.MenuItem;
-			Gtk.MenuItem disconnect = builder.get_object("status_icon_menu_disconnect_menuitem") as Gtk.MenuItem;
+			connect_menuitem = builder.get_object("status_icon_menu_connect_menuitem") as Gtk.MenuItem;
+			disconnect_menuitem = builder.get_object("status_icon_menu_disconnect_menuitem") as Gtk.MenuItem;
 
 			status_menu.show_all();
 			if (barabas.get_status() == DBus.Client.ConnectionStatus.CONNECTED)
 			{
-				connect.hide();
+				connect_menuitem.hide();
 			}
 			else
 			{
-				disconnect.hide();
+				disconnect_menuitem.hide();
 			}
-			
-			status_menu.popup(null, null, status_icon.position_menu, button, time);
+			return status_menu;
 		}
 		
 		[CCode (instance_pos = -1)]
