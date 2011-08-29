@@ -11,6 +11,7 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Connect to Barabas server</property>
+    <property name="icon_name">barabas-search</property>
     <property name="type_hint">dialog</property>
     <signal name="response" handler="barabas_gtk_face_connect_dialog_on_response" swapped="no"/>
     <child internal-child="vbox">
@@ -199,6 +200,7 @@
     <property name="can_focus">False</property>
     <property name="margin_left">3</property>
     <property name="title" translatable="yes">Barabas</property>
+    <property name="icon_name">barabas-search</property>
     <signal name="delete-event" handler="barabas_gtk_face_search_window_on_delete_window" swapped="no"/>
     <child>
       <object class="GtkGrid" id="searchWindowGrid">
@@ -226,9 +228,6 @@
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <object class="GtkScrolledWindow" id="searchResultsScrolledWindow">
@@ -269,6 +268,9 @@
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -325,6 +327,7 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Login to Barabas Server</property>
+    <property name="icon_name">barabas-search</property>
     <property name="type_hint">dialog</property>
     <signal name="response" handler="barabas_gtk_face_user_password_authentication_dialog_on_response" swapped="no"/>
     <child internal-child="vbox">
