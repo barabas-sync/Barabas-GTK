@@ -190,7 +190,7 @@
       <!-- column-name file -->
       <column type="BarabasDBusClientSyncedFile"/>
       <!-- column-name remote_id -->
-      <column type="gint"/>
+      <column type="gint64"/>
       <!-- column-name icon_name -->
       <column type="gchararray"/>
     </columns>
